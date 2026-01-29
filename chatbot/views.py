@@ -1,11 +1,12 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 #configure gemini
-genai.configure(api_key=settings.GEMINI_API_KEY)
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 class CSAdvisorView(APIView):
     def post(self, request):
@@ -24,14 +25,20 @@ class CSAdvisorView(APIView):
             Recommend small exploratory projects or short experiments to help validate interest. Encourage decisions based on performance and hands-on experience rather than trends or peer influence. 
             Highlight complementary skill combinations to improve long-term positioning. Provide a short-term action plan for the next 30–60 days. Maintain objectivity, normalize uncertainty, and allow flexibility for future pivots."""
 
-            #2. Initialize the model
-            model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash",
-                system_instruction=instructions
-            )
+            # #2. Initialize the model
+            # model = genai.GenerativeModel(
+            #     model_name="gemini-2.5-flash",
+            #     system_instruction=instructions
+            # )
 
             #generate response
-            response = model.generate_content(user_message)
+            response =  client.models.generate_content(
+                model="gemini-2.5-flash",
+                config=types.GenerateContentConfig(
+                system_instruction=instructions
+                ),
+                contents=user_message
+            )
 
             return Response({
                 "bot_response": response.text,
