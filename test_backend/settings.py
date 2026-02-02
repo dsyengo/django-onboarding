@@ -31,6 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    'localhost:8000',
 ]
 
 
@@ -47,10 +48,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crud_mysql',
     'chatbot',
+    'complete_auth',
     'rest_framework',
+    'corsheaders',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -61,6 +67,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'test_backend.urls'
+
 
 TEMPLATES = [
     {
@@ -126,6 +133,46 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+# Add this to ensure DRF knows how to handle the incoming requests
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+
+# --- CORS CONFIGURATION ---
+# Replace with your actual frontend URL
+CORS_ALLOWED_ORIGINS = [
+    # "http://localhost:3000", # React
+    "http://localhost:4200",  # Angular
+]
+
+# Essential for Session Authentication via cookies
+CORS_ALLOW_CREDENTIALS = True
+
+# This ensures the frontend can read the CSRF cookie to send it back in headers
+CSRF_COOKIE_HTTPONLY = False
+
+# --- CSRF CONFIGURATION ---
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:4200",
+]
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 
 # Static files (CSS, JavaScript, Images)
